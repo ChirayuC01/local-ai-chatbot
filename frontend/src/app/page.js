@@ -17,7 +17,7 @@ export default function Home() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isLoading) {
-        handleStop(); // stop streaming
+        handleStop();
       }
     };
 
@@ -50,7 +50,17 @@ export default function Home() {
 
   // Handle sending a message
   const handleSendMessage = async (content, skipUserSave = false) => {
-    if (!activeChatId) return;
+    let currentChatId = activeChatId;
+
+    // If no active chat, create one first
+    if (!currentChatId) {
+      const res = await axios.post('http://localhost:3001/api/chat', {
+        title: 'New Chat',
+      });
+      currentChatId = res.data.id;
+      setActiveChatId(currentChatId);
+      await fetchChats();
+    }
 
     if (!skipUserSave) {
       setMessages((prev) => [...prev, { role: 'user', content }]);
@@ -59,7 +69,7 @@ export default function Home() {
       // Auto-title
       if (messages.length === 0) {
         const truncated = content.length > 30 ? content.slice(0, 30) + '...' : content;
-        await axios.patch(`http://localhost:3001/api/chat/${activeChatId}/title`, {
+        await axios.patch(`http://localhost:3001/api/chat/${currentChatId}/title`, {
           title: truncated,
         });
         fetchChats();
@@ -69,7 +79,7 @@ export default function Home() {
     setIsLoading(true);
 
     const response = await fetch(
-      `http://localhost:3001/api/chat/${activeChatId}/message`,
+      `http://localhost:3001/api/chat/${currentChatId}/message`,
       {
         method: 'POST',
         body: JSON.stringify({ content, retry: skipUserSave }),
@@ -128,7 +138,6 @@ export default function Home() {
       }
     }
 
-    // Final cleanup
     assistantReply = assistantReply.replace(/\[END\]/g, '').trim();
 
     // Finalize assistant message
@@ -165,7 +174,7 @@ export default function Home() {
           isLoading={isLoading}
           onRetry={
             lastUserMessage && !isLoading
-              ? () => handleSendMessage(lastUserMessage, true) // ✅ skipUserSave = true
+              ? () => handleSendMessage(lastUserMessage, true)
               : null
           }
         />
