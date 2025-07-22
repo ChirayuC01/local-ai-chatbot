@@ -14,6 +14,18 @@ export default function Home() {
   const [lastUserMessage, setLastUserMessage] = useState(null);
   const eventSourceRef = useRef(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isLoading) {
+        handleStop(); // stop streaming
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isLoading]);
+
+
   // Fetch all chats
   const fetchChats = async () => {
     const res = await axios.get('http://localhost:3001/api/chats');
