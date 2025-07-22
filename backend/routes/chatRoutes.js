@@ -8,5 +8,6 @@ router.post('/chat/:chatId/message', chatController.sendMessage);
 router.post('/chat/:chatId/stop', chatController.stopMessage);
 router.get('/chat/:chatId', chatController.getChatHistory);
 router.patch('/chat/:chatId/title', chatController.updateChatTitle);
+router.delete('/chat/:chatId', chatController.deleteChat);
 
 module.exports = router;

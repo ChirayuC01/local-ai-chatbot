@@ -147,7 +147,19 @@ async function updateChatTitle(req, res) {
     }
 }
 
+async function deleteChat(req, res) {
+    const { chatId } = req.params;
 
+    try {
+        await prisma.message.deleteMany({ where: { chatId } }); // delete messages first
+        await prisma.chat.delete({ where: { id: chatId } });
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Delete chat error:', err);
+        res.status(500).json({ error: 'Failed to delete chat' });
+    }
+}
 
 
 module.exports = {
@@ -157,4 +169,5 @@ module.exports = {
     stopMessage,
     getChatHistory,
     updateChatTitle,
+    deleteChat,
 };

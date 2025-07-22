@@ -1,6 +1,26 @@
 'use client';
 
+import { useState } from 'react';
+import axios from 'axios';
+import { Pencil, Trash } from 'lucide-react';
+
 export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
+    const [editingChatId, setEditingChatId] = useState(null);
+    const [newTitle, setNewTitle] = useState('');
+
+    const handleRename = async (chatId) => {
+        await axios.patch(`http://localhost:3001/api/chat/${chatId}/title`, {
+            title: newTitle || 'Untitled Chat',
+        });
+        setEditingChatId(null);
+        location.reload(); // or call a prop to refresh chats
+    };
+
+    const handleDelete = async (chatId) => {
+        await axios.delete(`http://localhost:3001/api/chat/${chatId}`);
+        location.reload();
+    };
+
     return (
         <div className="w-64 bg-zinc-800 p-4 flex flex-col">
             <button
@@ -14,11 +34,41 @@ export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
                 {chats.map((chat) => (
                     <div
                         key={chat.id}
-                        onClick={() => onSelectChat(chat.id)}
-                        className={`cursor-pointer p-2 rounded hover:bg-zinc-700 ${chat.id === activeId ? 'bg-zinc-700' : ''
+                        className={`group flex items-center justify-between gap-1 p-2 rounded cursor-pointer ${chat.id === activeId ? 'bg-zinc-700' : 'hover:bg-zinc-700'
                             }`}
                     >
-                        {chat.title}
+                        {editingChatId === chat.id ? (
+                            <>
+                                <input
+                                    value={newTitle}
+                                    onChange={(e) => setNewTitle(e.target.value)}
+                                    className="flex-1 bg-zinc-700 p-1 text-white rounded"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleRename(chat.id)}
+                                    autoFocus
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <div onClick={() => onSelectChat(chat.id)} className="flex-1 truncate">
+                                    {chat.title}
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setNewTitle(chat.title);
+                                        setEditingChatId(chat.id);
+                                    }}
+                                    className="text-gray-400 hover:text-white"
+                                >
+                                    <Pencil size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(chat.id)}
+                                    className="text-red-500 hover:text-red-700"
+                                >
+                                    <Trash size={14} />
+                                </button>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>
