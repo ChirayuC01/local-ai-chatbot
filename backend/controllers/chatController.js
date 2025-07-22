@@ -127,6 +127,27 @@ function stopMessage(req, res) {
     }
 }
 
+async function updateChatTitle(req, res) {
+    const { chatId } = req.params;
+    const { title } = req.body;
+
+    if (!title) {
+        return res.status(400).json({ error: 'Title is required' });
+    }
+
+    try {
+        const updated = await prisma.chat.update({
+            where: { id: chatId },
+            data: { title },
+        });
+        res.json(updated);
+    } catch (err) {
+        console.error('Update title error:', err);
+        res.status(500).json({ error: 'Failed to update title' });
+    }
+}
+
+
 
 
 module.exports = {
@@ -135,4 +156,5 @@ module.exports = {
     sendMessage,
     stopMessage,
     getChatHistory,
+    updateChatTitle,
 };

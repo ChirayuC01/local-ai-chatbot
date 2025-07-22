@@ -40,6 +40,16 @@ export default function Home() {
     if (!activeChatId) return;
 
     setMessages((prev) => [...prev, { role: 'user', content }]);
+
+    // Auto-title: if it's the first message, update the title
+    if (messages.length === 0) {
+      const truncated = content.length > 30 ? content.slice(0, 30) + '...' : content;
+      await axios.patch(`http://localhost:3001/api/chat/${activeChatId}/title`, {
+        title: truncated,
+      });
+      fetchChats(); // Refresh sidebar titles
+    }
+
     setIsLoading(true);
 
     const response = await fetch(
