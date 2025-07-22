@@ -51,22 +51,23 @@ async function getChatHistory(req, res) {
 
 async function sendMessage(req, res) {
     const { chatId } = req.params;
-    const { content } = req.body;
+    const { content, retry } = req.body;
 
     if (!content) {
         return res.status(400).json({ error: 'Message content is required' });
     }
 
-    // Save user message to DB
-    await prisma.message.create({
-        data: {
-            chatId,
-            role: 'user',
-            content,
-        },
-    });
+    // ✅ Only save user message if not retrying
+    if (!retry) {
+        await prisma.message.create({
+            data: {
+                chatId,
+                role: 'user',
+                content,
+            },
+        });
+    }
 
-    // Setup streaming headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');

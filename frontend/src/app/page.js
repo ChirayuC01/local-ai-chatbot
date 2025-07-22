@@ -11,6 +11,7 @@ export default function Home() {
   const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastUserMessage, setLastUserMessage] = useState(null);
   const eventSourceRef = useRef(null);
 
   // Fetch all chats
@@ -36,18 +37,21 @@ export default function Home() {
   };
 
   // Handle sending a message
-  const handleSendMessage = async (content) => {
+  const handleSendMessage = async (content, skipUserSave = false) => {
     if (!activeChatId) return;
 
-    setMessages((prev) => [...prev, { role: 'user', content }]);
+    if (!skipUserSave) {
+      setMessages((prev) => [...prev, { role: 'user', content }]);
+      setLastUserMessage(content);
 
-    // Auto-title: if it's the first message, update the title
-    if (messages.length === 0) {
-      const truncated = content.length > 30 ? content.slice(0, 30) + '...' : content;
-      await axios.patch(`http://localhost:3001/api/chat/${activeChatId}/title`, {
-        title: truncated,
-      });
-      fetchChats(); // Refresh sidebar titles
+      // Auto-title
+      if (messages.length === 0) {
+        const truncated = content.length > 30 ? content.slice(0, 30) + '...' : content;
+        await axios.patch(`http://localhost:3001/api/chat/${activeChatId}/title`, {
+          title: truncated,
+        });
+        fetchChats();
+      }
     }
 
     setIsLoading(true);
@@ -56,10 +60,11 @@ export default function Home() {
       `http://localhost:3001/api/chat/${activeChatId}/message`,
       {
         method: 'POST',
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, retry: skipUserSave }),
         headers: { 'Content-Type': 'application/json' },
       }
     );
+
 
     if (!response.ok) {
       setIsLoading(false);
@@ -143,7 +148,15 @@ export default function Home() {
         activeId={activeChatId}
       />
       <div className="flex flex-col flex-1">
-        <ChatContainer messages={messages} isLoading={isLoading} />
+        <ChatContainer
+          messages={messages}
+          isLoading={isLoading}
+          onRetry={
+            lastUserMessage && !isLoading
+              ? () => handleSendMessage(lastUserMessage, true) // ✅ skipUserSave = true
+              : null
+          }
+        />
         <ChatInput onSend={handleSendMessage} onStop={handleStop} isLoading={isLoading} />
       </div>
     </>
