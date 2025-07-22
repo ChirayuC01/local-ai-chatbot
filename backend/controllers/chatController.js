@@ -57,7 +57,8 @@ async function sendMessage(req, res) {
         return res.status(400).json({ error: 'Message content is required' });
     }
 
-    const userMessage = await prisma.message.create({
+    // Save user message to DB
+    await prisma.message.create({
         data: {
             chatId,
             role: 'user',
@@ -65,20 +66,23 @@ async function sendMessage(req, res) {
         },
     });
 
+    // Setup streaming headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
     let assistantReply = '';
+    let hasEnded = false; // ❗ Prevent onEnd from executing more than once
 
     const onData = (token) => {
-        // console.log('Token:', JSON.stringify(token));
         assistantReply += token;
         res.write(`data: ${token}\n\n`);
     };
 
-
     const onEnd = async () => {
+        if (hasEnded) return;
+        hasEnded = true;
+
         abortControllers.delete(chatId);
 
         await prisma.message.create({
@@ -94,8 +98,10 @@ async function sendMessage(req, res) {
     };
 
     const onError = (err) => {
-        abortControllers.delete(chatId);
+        if (hasEnded) return;
+        hasEnded = true;
 
+        abortControllers.delete(chatId);
         console.error('Streaming error:', err);
         res.write(`data: [ERROR]\n\n`);
         res.end();
