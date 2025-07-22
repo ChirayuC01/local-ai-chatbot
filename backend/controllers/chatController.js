@@ -72,7 +72,7 @@ async function sendMessage(req, res) {
     res.setHeader('Connection', 'keep-alive');
 
     let assistantReply = '';
-    let hasEnded = false; // ❗ Prevent onEnd from executing more than once
+    let hasEnded = false;
 
     const onData = (token) => {
         assistantReply += token;

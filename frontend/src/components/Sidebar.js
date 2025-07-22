@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
 export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
     return (
         <div className="w-64 bg-zinc-800 p-4 flex flex-col">

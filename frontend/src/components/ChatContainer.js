@@ -1,6 +1,6 @@
 import ChatMessage from './ChatMessage';
 
-export default function ChatContainer({ messages }) {
+export default function ChatContainer({ messages, isLoading }) {
     return (
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {messages.map((msg, index) => (
@@ -10,6 +10,17 @@ export default function ChatContainer({ messages }) {
                     content={msg.content}
                 />
             ))}
+
+            {isLoading && (
+                <ChatMessage
+                    role="assistant"
+                    content={
+                        <span className="animate-pulse text-gray-400">
+                            Typing<span className="animate-bounce">...</span>
+                        </span>
+                    }
+                />
+            )}
         </div>
     );
 }

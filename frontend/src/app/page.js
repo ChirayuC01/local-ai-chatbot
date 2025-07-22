@@ -133,7 +133,7 @@ export default function Home() {
         activeId={activeChatId}
       />
       <div className="flex flex-col flex-1">
-        <ChatContainer messages={messages} />
+        <ChatContainer messages={messages} isLoading={isLoading} />
         <ChatInput onSend={handleSendMessage} onStop={handleStop} isLoading={isLoading} />
       </div>
     </>
