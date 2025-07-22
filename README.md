@@ -125,7 +125,7 @@ npm run dev
 ## 📸 Screenshots
 
 ### Welcome Page
-![Welcome Page](screenshots\Home.png?raw=true "Welcome Page")
+![Welcome Page](/screenshots/Home.png?raw=true "Welcome Page")
 
 ### Chat Page
-![Chat Page](screenshots\Chat.png?raw=true "Chat Page")
+![Chat Page](/screenshots/Chat.png?raw=true "Chat Page")
