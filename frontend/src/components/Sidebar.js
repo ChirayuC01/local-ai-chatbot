@@ -99,14 +99,13 @@ export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
                                         />
                                     </div>
                                 ) : (
-                                    <div className="flex items-center p-3">
+                                    <div className="flex items-center justify-between p-3 gap-2">
                                         <div
                                             onClick={() => onSelectChat(chat.id)}
-                                            className="flex-1 cursor-pointer"
+                                            className="flex-1 min-w-0 cursor-pointer"
                                         >
-                                            <div className="flex items-center space-x-3">
-                                                <div className={`w-2 h-2 rounded-full ${chat.id === activeId ? 'bg-blue-500' : 'bg-gray-500'
-                                                    }`} />
+                                            <div className="flex items-center space-x-3 overflow-hidden">
+                                                <div className={`w-2 h-2 rounded-full ${chat.id === activeId ? 'bg-blue-500' : 'bg-gray-500'}`} />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium truncate">
                                                         {chat.title}
@@ -118,7 +117,7 @@ export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                             <button
                                                 onClick={() => {
                                                     setNewTitle(chat.title);
@@ -136,6 +135,7 @@ export default function Sidebar({ chats, onNewChat, onSelectChat, activeId }) {
                                             </button>
                                         </div>
                                     </div>
+
                                 )}
                             </div>
                         ))
